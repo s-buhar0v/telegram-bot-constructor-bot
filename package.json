@@ -1,0 +1,23 @@
+{
+  "name": "telegram-bot-constructor-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./src/bot"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/s-buhar0v/telegram-bot-constructor-bot.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/s-buhar0v/telegram-bot-constructor-bot/issues"
+  },
+  "homepage": "https://github.com/s-buhar0v/telegram-bot-constructor-bot#readme",
+  "dependencies": {
+    "node-telegram-bot-api": "^0.30.0"
+  }
+}
