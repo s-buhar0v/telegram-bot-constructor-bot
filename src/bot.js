@@ -1,18 +1,21 @@
-const TelegramBot = require('node-telegram-bot-api');
+const TelegramBot = require('node-telegram-bot-api')
+const mongoose = require('mongoose')
 
-const token = '531672624:AAHz5TO4qKY4P6Jg3aMJm8Vmm6cjLPqWPvg';
+const settingsRepository = require('./settings-repository')
+const config = require('../config')
 
-const bot = new TelegramBot(token, { polling: true });
+const bot = new TelegramBot(config.botAccessToken, { polling: true });
+mongoose.connect(config.connectionString)
 
 bot.onText(/\/start/, (msg) => {
-
     bot.sendMessage(msg.chat.id, 'Welcome')
-
 });
 
 bot.onText(/\.*/, (message) => {
     if (message.text != '/start') {
-        bot.sendMessage(message.chat.id, 'Received your message')
+        settingsRepository.getOnTextAnswer(config.botAccessToken, message.text, (answer) => {
+            bot.sendMessage(message.chat.id, answer.answerText || `Sorry, I don't understand you`)
+        })
     }
 });
 
