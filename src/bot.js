@@ -29,19 +29,32 @@ bot.onText(/\.*/, (message) => {
 });
 
 bot.on('callback_query', (callbackQuery) => {
-    settingsRepository.getInlineAnswerText(callbackQuery.data, answerText => {
-        let options = {
-            chat_id: callbackQuery.message.chat.id,
-            message_id: callbackQuery.message.message_id,
-        }
+    let options = {
+        chat_id: callbackQuery.message.chat.id,
+        message_id: callbackQuery.message.message_id,
+    }
 
-        bot.editMessageText(answerText, options).then(() => {
-            bot.editMessageReplyMarkup(JSON.stringify({
-                inline_keyboard: [
-                    [{ text: 'back', callback_data: 'back' }]
-                ]
-            }), options)
+    if (callbackQuery.data == 'back') {
+        settingsRepository.getInlineKeysByBot(config.botAccessToken, (inlineKeys) => {
+            let keys = inlineKeys.map(key => [{ text: key.buttonText, callback_data: key._id }])
+
+            bot.editMessageText('Welcome', options).then(() => {
+                bot.editMessageReplyMarkup(JSON.stringify({
+                    inline_keyboard: keys
+                }), options)
+            })
         })
-    })
+
+    } else {
+        settingsRepository.getInlineAnswerText(callbackQuery.data, answerText => {
+            bot.editMessageText(answerText, options).then(() => {
+                bot.editMessageReplyMarkup(JSON.stringify({
+                    inline_keyboard: [
+                        [{ text: 'back', callback_data: 'back' }]
+                    ]
+                }), options)
+            })
+        })
+    }
 })
 
