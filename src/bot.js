@@ -1,8 +1,11 @@
 const TelegramBot = require('node-telegram-bot-api')
 const mongoose = require('mongoose')
+const express = require('express')
 
 const settingsRepository = require('./settings-repository')
 const config = require('../config')
+const app = express()
+const port = 4000 || env.PORT
 
 const bot = new TelegramBot(config.botAccessToken, { polling: true });
 mongoose.connect(config.connectionString)
@@ -96,6 +99,15 @@ bot.on('callback_query', (callbackQuery) => {
     }
 })
 
+app.get('/', (response, request) => {
+    response.json({ started: true })
+})
+
+app.listen(port, () => {
+    mongoose.connect(config.connectionString)
+
+    console.log(`Bot is listening to ${port}`)
+})
 
 function getStartMessageMarkup(callback) {
     settingsRepository.getInlineKeysByBot(config.botAccessToken, (inlineKeys) => {
@@ -107,7 +119,6 @@ function getStartMessageMarkup(callback) {
                 inline_keyboard: [keys, interviewKeys]
             }))
         })
-
     })
 }
 
