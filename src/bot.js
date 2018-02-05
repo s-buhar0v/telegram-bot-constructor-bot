@@ -7,17 +7,8 @@ const config = require('../config')
 const bot = new TelegramBot(config.botAccessToken, { polling: true });
 mongoose.connect(config.connectionString)
 
-bot.onText(/\/start/, (msg) => {
-    settingsRepository.getInlineKeysByBot(config.botAccessToken, (inlineKeys) => {
-        let keys = inlineKeys.map(key => [{ text: key.buttonText, callback_data: key._id }])
-        let options = {
-            reply_markup: JSON.stringify({
-                inline_keyboard: keys
-            })
-        };
-
-        bot.sendMessage(msg.chat.id, 'Welcome', options)
-    })
+bot.onText(/\/start/, (message) => {
+    getStartMessageMarkup(markup => bot.sendMessage(message.chat.id, 'Welcome', { reply_markup: markup }))
 });
 
 bot.onText(/\.*/, (message) => {
@@ -34,27 +25,94 @@ bot.on('callback_query', (callbackQuery) => {
         message_id: callbackQuery.message.message_id,
     }
 
-    if (callbackQuery.data == 'back') {
-        settingsRepository.getInlineKeysByBot(config.botAccessToken, (inlineKeys) => {
-            let keys = inlineKeys.map(key => [{ text: key.buttonText, callback_data: key._id }])
+    let mode = callbackQuery.data
 
-            bot.editMessageText('Welcome', options).then(() => {
-                bot.editMessageReplyMarkup(JSON.stringify({
-                    inline_keyboard: keys
-                }), options)
-            })
-        })
+    if (callbackQuery.data.startsWith('i_')) {
+        mode = 'interview'
+    }
+    if (callbackQuery.data.startsWith('a_')) {
+        mode = 'answer'
+    }
+    if (callbackQuery.data.startsWith('inline_')) {
+        mode = 'inline'
+    }
 
-    } else {
-        settingsRepository.getInlineAnswerText(callbackQuery.data, answerText => {
-            bot.editMessageText(answerText, options).then(() => {
-                bot.editMessageReplyMarkup(JSON.stringify({
-                    inline_keyboard: [
-                        [{ text: 'back', callback_data: 'back' }]
-                    ]
-                }), options)
+    switch (mode) {
+        case 'back': {
+            getStartMessageMarkup(markup => {
+                bot.editMessageText('Welcome', options).then(() => {
+                    bot.editMessageReplyMarkup(markup, options)
+                })
             })
-        })
+
+            break;
+        }
+
+        case 'interview': {
+            let interviewId = callbackQuery.data.split('_')[1]
+
+            settingsRepository.getInterview(interviewId, interview => {
+                bot.editMessageText(interview.question, options).then(() => {
+                    bot.editMessageReplyMarkup(JSON.stringify({
+                        inline_keyboard: [
+                            [{ text: interview.answerA, callback_data: `a_${interview.answerA}_${interview.question}` },
+                            { text: interview.answerB, callback_data: `a_${interview.answerB}_${interview.question}` }],
+                        ]
+                    }), options)
+                })
+            })
+
+            break;
+        }
+
+        case 'answer': {
+            let splittedCallBackData = callbackQuery.data.split('_')
+
+            let interviewAnswer = {
+                answer: splittedCallBackData[1],
+                question: splittedCallBackData[2],
+                botAccessToken: config.botAccessToken
+            }
+
+            console.log(callbackQuery)
+
+            bot.editMessageReplyMarkup(JSON.stringify({
+                inline_keyboard: [
+                    [{ text: 'back', callback_data: 'back' }]
+                ]
+            }), options)
+
+            break;
+        }
+
+        case 'inline': {
+            settingsRepository.getInlineAnswerText(callbackQuery.data, answerText => {
+                bot.editMessageText(answerText, options).then(() => {
+                    bot.editMessageReplyMarkup(JSON.stringify({
+                        inline_keyboard: [
+                            [{ text: 'back', callback_data: 'back' }]
+                        ]
+                    }), options)
+                })
+            })
+
+            break;
+        }
     }
 })
+
+
+function getStartMessageMarkup(callback) {
+    settingsRepository.getInlineKeysByBot(config.botAccessToken, (inlineKeys) => {
+        settingsRepository.getInterviews(config.botAccessToken, (interviews) => {
+            let interviewKeys = interviews.map(interview => { return { text: interview.interviewName, callback_data: `i_${interview._id}` } })
+            let keys = inlineKeys.map(key => { return { text: key.buttonText, callback_data: `inline_${key._id}` } })
+
+            callback(JSON.stringify({
+                inline_keyboard: [keys, interviewKeys]
+            }))
+        })
+
+    })
+}
 
