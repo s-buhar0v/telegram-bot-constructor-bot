@@ -39,16 +39,21 @@ bot.on('callback_query', (callbackQuery) => {
 
     switch (mode) {
         case 'back': {
+            mode = ''
+
             getStartMessageMarkup(markup => {
                 bot.editMessageText('Welcome to Bot Constrcutor', options).then(() => {
                     bot.editMessageReplyMarkup(markup, options)
                 })
             })
 
+            
+
             break;
         }
 
         case 'interview': {
+            mode = ''
             let interviewId = callbackQuery.data.split('_')[1]
 
             settingsRepository.getInterview(interviewId, interview => {
@@ -66,6 +71,7 @@ bot.on('callback_query', (callbackQuery) => {
         }
 
         case 'answer': {
+            mode = ''
             let splittedCallBackData = callbackQuery.data.split('_')
 
             let interviewAnswer = {
@@ -86,6 +92,7 @@ bot.on('callback_query', (callbackQuery) => {
         }
 
         case 'inline': {
+            mode = ''
             settingsRepository.getInlineAnswerText(callbackQuery.data, answerText => {
                 bot.editMessageText(answerText, options).then(() => {
                     bot.editMessageReplyMarkup(JSON.stringify({
