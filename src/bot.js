@@ -10,7 +10,7 @@ mongoose.connect(config.connectionString)
 
 bot.onText(/\.*/, (message) => {
     if (message.text == '/start') {
-        getStartMessageMarkup(markup => bot.sendMessage(message.chat.id, 'Welcome to Bot Constrcutor to Bot Constrcutor', { reply_markup: markup }))
+        getStartMessageMarkup(markup => bot.sendMessage(message.chat.id, 'Welcome to Bot Constrcutor!', { reply_markup: markup }))
     } else {
         settingsRepository.getOnTextAnswer(config.botAccessToken, message.text, (answer) => {
             bot.sendMessage(message.chat.id, answer.answerText || `Sorry, I don't understand you`)
