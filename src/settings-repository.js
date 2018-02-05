@@ -1,6 +1,7 @@
 const OnTextAnswer = require('./models/on-text-answer')
 const InlinKey = require('./models/inline-key')
 const Interview = require('./models/interview')
+const Answer = require('./models/answer')
 
 function getOnTextAnswer(botAccessToken, messageText, callback) {
     OnTextAnswer.findOne({ botAccessToken: botAccessToken, messageText: messageText }, (err, answer) => {
@@ -23,7 +24,17 @@ function getInterviews(botAccessToken, callback) {
 }
 
 function getInterview(id, callback) {
-    Interview.findById(id , (err, interview) => callback(interview))
+    Interview.findById(id, (err, interview) => callback(interview))
+}
+
+function addInterviewAnswer(answer, callback) {
+    let newAnswer = new Answer({
+        interviewName: answer.interviewName,
+        answerText: answer.answerText,
+        botAccessToken: answer.botAccessToken
+    })
+
+    newAnswer.save(err => callback())
 }
 
 module.exports.getOnTextAnswer = getOnTextAnswer
@@ -31,3 +42,4 @@ module.exports.getInlineKeysByBot = getInlineKeysByBot
 module.exports.getInlineAnswerText = getInlineAnswerText
 module.exports.getInterviews = getInterviews
 module.exports.getInterview = getInterview
+module.exports.addInterviewAnswer = addInterviewAnswer

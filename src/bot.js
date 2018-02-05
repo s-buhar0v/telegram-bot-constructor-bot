@@ -55,8 +55,8 @@ bot.on('callback_query', (callbackQuery) => {
                 bot.editMessageText(interview.question, options).then(() => {
                     bot.editMessageReplyMarkup(JSON.stringify({
                         inline_keyboard: [
-                            [{ text: interview.answerA, callback_data: `a_${interview.answerA}_${interview.question}` },
-                            { text: interview.answerB, callback_data: `a_${interview.answerB}_${interview.question}` }],
+                            [{ text: interview.answerA, callback_data: `a_${interview.answerA}_${interview.interviewName}` },
+                            { text: interview.answerB, callback_data: `a_${interview.answerB}_${interview.interviewName}` }],
                         ]
                     }), options)
                 })
@@ -69,19 +69,19 @@ bot.on('callback_query', (callbackQuery) => {
             let splittedCallBackData = callbackQuery.data.split('_')
 
             let interviewAnswer = {
-                answer: splittedCallBackData[1],
-                question: splittedCallBackData[2],
+                answerText: splittedCallBackData[1],
+                interviewName: splittedCallBackData[2],
                 botAccessToken: config.botAccessToken
             }
 
-            console.log(callbackQuery)
-
-            bot.editMessageReplyMarkup(JSON.stringify({
-                inline_keyboard: [
-                    [{ text: 'back', callback_data: 'back' }]
-                ]
-            }), options)
-
+            settingsRepository.addInterviewAnswer(interviewAnswer, () => {
+                bot.editMessageReplyMarkup(JSON.stringify({
+                    inline_keyboard: [
+                        [{ text: 'back', callback_data: 'back' }]
+                    ]
+                }), options)     
+            })
+            
             break;
         }
 
