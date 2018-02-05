@@ -1,23 +1,11 @@
 const TelegramBot = require('node-telegram-bot-api')
 const mongoose = require('mongoose')
-const express = require('express')
 
 const settingsRepository = require('./settings-repository')
 const config = require('../config')
-const app = express()
-const port = process.env.PORT || 4000
-
-app.get('/', (requset, response) => {
-    response.json({ started: true })
-})
-
-app.listen(port, () => {
-    mongoose.connect(config.connectionString)
-
-    console.log(`Bot is listening to ${port}`)
-})
 
 const bot = new TelegramBot(config.botAccessToken, { polling: true });
+
 mongoose.connect(config.connectionString)
 
 bot.onText(/\/start/, (message) => {
