@@ -5,7 +5,7 @@ const express = require('express')
 const settingsRepository = require('./settings-repository')
 const config = require('../config')
 const app = express()
-const port = 4000 || env.PORT
+const port = process.env.PORT || 4000
 
 const bot = new TelegramBot(config.botAccessToken, { polling: true });
 mongoose.connect(config.connectionString)
