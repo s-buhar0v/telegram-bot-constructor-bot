@@ -27,7 +27,7 @@ bot.on('callback_query', (callbackQuery) => {
 
     let mode = callbackQuery.data
 
-    if (callbackQuery.data.startsWith('i_')) {
+    if (callbackQuery.data.startsWith('interview_')) {
         mode = 'interview'
     }
     if (callbackQuery.data.startsWith('a_')) {
@@ -37,74 +37,62 @@ bot.on('callback_query', (callbackQuery) => {
         mode = 'inline'
     }
 
-    switch (mode) {
-        case 'back': {
-            mode = ''
+    if (mode == 'back') {
+        mode = ''
 
-            getStartMessageMarkup(markup => {
-                bot.editMessageText('Welcome to Bot Constrcutor', options).then(() => {
-                    bot.editMessageReplyMarkup(markup, options)
-                })
+        getStartMessageMarkup(markup => {
+            bot.editMessageText('Welcome to Bot Constrcutor', options).then(() => {
+                bot.editMessageReplyMarkup(markup, options)
             })
+        })
+    }
 
-            
+    if (mode == 'interview') {
+        mode = ''
+        let interviewId = callbackQuery.data.split('_')[1]
 
-            break;
+        settingsRepository.getInterview(interviewId, interview => {
+            bot.editMessageText(interview.question, options).then(() => {
+                bot.editMessageReplyMarkup(JSON.stringify({
+                    inline_keyboard: [
+                        [{ text: interview.answerA, callback_data: `a_${interview.answerA}_${interview.interviewName}` },
+                        { text: interview.answerB, callback_data: `a_${interview.answerB}_${interview.interviewName}` }],
+                    ]
+                }), options)
+            })
+        })
+    }
+
+    if (mode == 'answer') {
+        mode = ''
+        let splittedCallBackData = callbackQuery.data.split('_')
+
+        let interviewAnswer = {
+            answerText: splittedCallBackData[1],
+            interviewName: splittedCallBackData[2],
+            botAccessToken: config.botAccessToken
         }
 
-        case 'interview': {
-            mode = ''
-            let interviewId = callbackQuery.data.split('_')[1]
+        settingsRepository.addInterviewAnswer(interviewAnswer, () => {
+            bot.editMessageReplyMarkup(JSON.stringify({
+                inline_keyboard: [
+                    [{ text: 'back', callback_data: 'back' }]
+                ]
+            }), options)
+        })
+    }
 
-            settingsRepository.getInterview(interviewId, interview => {
-                bot.editMessageText(interview.question, options).then(() => {
-                    bot.editMessageReplyMarkup(JSON.stringify({
-                        inline_keyboard: [
-                            [{ text: interview.answerA, callback_data: `a_${interview.answerA}_${interview.interviewName}` },
-                            { text: interview.answerB, callback_data: `a_${interview.answerB}_${interview.interviewName}` }],
-                        ]
-                    }), options)
-                })
-            })
-
-            break;
-        }
-
-        case 'answer': {
-            mode = ''
-            let splittedCallBackData = callbackQuery.data.split('_')
-
-            let interviewAnswer = {
-                answerText: splittedCallBackData[1],
-                interviewName: splittedCallBackData[2],
-                botAccessToken: config.botAccessToken
-            }
-
-            settingsRepository.addInterviewAnswer(interviewAnswer, () => {
+    if (mode == 'inline') {
+        mode = ''
+        settingsRepository.getInlineAnswerText(callbackQuery.data.split('_')[1], answerText => {
+            bot.editMessageText(answerText, options).then(() => {
                 bot.editMessageReplyMarkup(JSON.stringify({
                     inline_keyboard: [
                         [{ text: 'back', callback_data: 'back' }]
                     ]
-                }), options)     
+                }), options)
             })
-
-            break;
-        }
-
-        case 'inline': {
-            mode = ''
-            settingsRepository.getInlineAnswerText(callbackQuery.data, answerText => {
-                bot.editMessageText(answerText, options).then(() => {
-                    bot.editMessageReplyMarkup(JSON.stringify({
-                        inline_keyboard: [
-                            [{ text: 'back', callback_data: 'back' }]
-                        ]
-                    }), options)
-                })
-            })
-
-            break;
-        }
+        })
     }
 })
 
@@ -112,7 +100,7 @@ bot.on('callback_query', (callbackQuery) => {
 function getStartMessageMarkup(callback) {
     settingsRepository.getInlineKeysByBot(config.botAccessToken, (inlineKeys) => {
         settingsRepository.getInterviews(config.botAccessToken, (interviews) => {
-            let interviewKeys = interviews.map(interview => { return { text: interview.interviewName, callback_data: `i_${interview._id}` } })
+            let interviewKeys = interviews.map(interview => { return { text: interview.interviewName, callback_data: `interview_${interview._id}` } })
             let keys = inlineKeys.map(key => { return { text: key.buttonText, callback_data: `inline_${key._id}` } })
 
             callback(JSON.stringify({
