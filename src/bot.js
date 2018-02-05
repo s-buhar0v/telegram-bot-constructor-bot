@@ -8,7 +8,7 @@ const bot = new TelegramBot(config.botAccessToken, { polling: true });
 mongoose.connect(config.connectionString)
 
 bot.onText(/\/start/, (message) => {
-    getStartMessageMarkup(markup => bot.sendMessage(message.chat.id, 'Welcome', { reply_markup: markup }))
+    getStartMessageMarkup(markup => bot.sendMessage(message.chat.id, 'Welcome to Bot Constrcutor to Bot Constrcutor', { reply_markup: markup }))
 });
 
 bot.onText(/\.*/, (message) => {
@@ -40,7 +40,7 @@ bot.on('callback_query', (callbackQuery) => {
     switch (mode) {
         case 'back': {
             getStartMessageMarkup(markup => {
-                bot.editMessageText('Welcome', options).then(() => {
+                bot.editMessageText('Welcome to Bot Constrcutor', options).then(() => {
                     bot.editMessageReplyMarkup(markup, options)
                 })
             })
@@ -81,7 +81,7 @@ bot.on('callback_query', (callbackQuery) => {
                     ]
                 }), options)     
             })
-            
+
             break;
         }
 
