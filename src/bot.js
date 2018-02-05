@@ -11,7 +11,7 @@ mongoose.connect(config.connectionString)
 
 bot.onText(/\.*/, (message) => {
     if (message.text == '/start') {
-        getStartMessageMarkup(markup => bot.sendMessage(message.chat.id, 'Welcome to Bot Constrcutor!', { reply_markup: markup }))
+        getStartMessageMarkup(markup => bot.sendMessage(message.chat.id, 'Welcome to Bot Constrcutor! http://telegra.ph/file/c6b8fbf4141b77aa326de.png', { reply_markup: markup }))
     } else {
         settingsRepository.getOnTextAnswer(config.botAccessToken, message.text, (answer) => {
             bot.sendMessage(message.chat.id, answer.answerText || `Sorry, I don't understand you`)
@@ -85,7 +85,7 @@ bot.on('callback_query', (callbackQuery) => {
         case 'back': {
             mode = ''
             getStartMessageMarkup(markup => {
-                bot.editMessageText('Welcome to Bot Constrcutor', options).then(() => {
+                bot.editMessageText('Welcome to Bot Constrcutor! http://telegra.ph/file/c6b8fbf4141b77aa326de.png', options).then(() => {
                     bot.editMessageReplyMarkup(markup, options)
                 })
             })
