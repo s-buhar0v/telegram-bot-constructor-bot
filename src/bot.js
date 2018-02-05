@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 
 const settingsRepository = require('./repositories/settings-repository')
 const config = require('../config')
+const text = require('./text')
 
 const bot = new TelegramBot(config.botAccessToken, { polling: true });
 
@@ -51,13 +52,14 @@ bot.on('callback_query', (callbackQuery) => {
             let interviewAnswer = {
                 answerText: splittedCallBackData[1],
                 interviewName: splittedCallBackData[2],
-                botAccessToken: config.botAccessToken
+                botAccessToken: config.botAccessToken,
+                userName: `${callbackQuery.from.first_name} ${callbackQuery.from.last_name}`
             }
 
             settingsRepository.addInterviewAnswer(interviewAnswer, () => {
                 bot.editMessageReplyMarkup(JSON.stringify({
                     inline_keyboard: [
-                        [{ text: 'back', callback_data: 'back' }]
+                        [{ text: text.backButton, callback_data: 'back' }]
                     ]
                 }), options)
             })
@@ -71,7 +73,7 @@ bot.on('callback_query', (callbackQuery) => {
                 bot.editMessageText(answerText, options).then(() => {
                     bot.editMessageReplyMarkup(JSON.stringify({
                         inline_keyboard: [
-                            [{ text: 'back', callback_data: 'back' }]
+                            [{ text: text.backButton, callback_data: 'back' }]
                         ]
                     }), options)
                 })

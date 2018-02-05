@@ -31,7 +31,8 @@ function addInterviewAnswer(answer, callback) {
     let newAnswer = new Answer({
         interviewName: answer.interviewName,
         answerText: answer.answerText,
-        botAccessToken: answer.botAccessToken
+        botAccessToken: answer.botAccessToken,
+        userName: answer.userName
     })
 
     newAnswer.save(err => callback())
