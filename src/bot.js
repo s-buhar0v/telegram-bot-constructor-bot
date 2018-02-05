@@ -7,6 +7,16 @@ const config = require('../config')
 const app = express()
 const port = process.env.PORT || 4000
 
+app.get('/', (requset, response) => {
+    response.json({ started: true })
+})
+
+app.listen(port, () => {
+    mongoose.connect(config.connectionString)
+
+    console.log(`Bot is listening to ${port}`)
+})
+
 const bot = new TelegramBot(config.botAccessToken, { polling: true });
 mongoose.connect(config.connectionString)
 
@@ -99,15 +109,6 @@ bot.on('callback_query', (callbackQuery) => {
     }
 })
 
-app.get('/', (response, request) => {
-    response.json({ started: true })
-})
-
-app.listen(port, () => {
-    mongoose.connect(config.connectionString)
-
-    console.log(`Bot is listening to ${port}`)
-})
 
 function getStartMessageMarkup(callback) {
     settingsRepository.getInlineKeysByBot(config.botAccessToken, (inlineKeys) => {
