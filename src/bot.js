@@ -1,19 +1,17 @@
 const TelegramBot = require('node-telegram-bot-api')
 const mongoose = require('mongoose')
 
-const settingsRepository = require('./settings-repository')
+const settingsRepository = require('./repositories/settings-repository')
 const config = require('../config')
 
 const bot = new TelegramBot(config.botAccessToken, { polling: true });
 
 mongoose.connect(config.connectionString)
 
-bot.onText(/\/start/, (message) => {
-    getStartMessageMarkup(markup => bot.sendMessage(message.chat.id, 'Welcome to Bot Constrcutor to Bot Constrcutor', { reply_markup: markup }))
-});
-
 bot.onText(/\.*/, (message) => {
-    if (message.text != '/start') {
+    if (message.text == '/start') {
+        getStartMessageMarkup(markup => bot.sendMessage(message.chat.id, 'Welcome to Bot Constrcutor to Bot Constrcutor', { reply_markup: markup }))
+    } else {
         settingsRepository.getOnTextAnswer(config.botAccessToken, message.text, (answer) => {
             bot.sendMessage(message.chat.id, answer.answerText || `Sorry, I don't understand you`)
         })

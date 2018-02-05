@@ -1,7 +1,7 @@
-const OnTextAnswer = require('./models/on-text-answer')
-const InlinKey = require('./models/inline-key')
-const Interview = require('./models/interview')
-const Answer = require('./models/answer')
+const OnTextAnswer = require('../models/on-text-answer')
+const InlinKey = require('../models/inline-key')
+const Interview = require('../models/interview')
+const Answer = require('../models/answer')
 
 function getOnTextAnswer(botAccessToken, messageText, callback) {
     OnTextAnswer.findOne({ botAccessToken: botAccessToken, messageText: messageText }, (err, answer) => {
