@@ -1,36 +1,19 @@
-const TextMessageAnswer = require('../models/text-message-answer')
+const axios = require('axios')
 
-function addTextMessageAnswer(textMessageAnswer, callback) {
-    let newTextMessageAnswer = new TextMessageAnswer(textMessageAnswer)
+const config = require('../../config')
 
-    newTextMessageAnswer.save((err) => {
-        if (err) {
+function getTextMessageAnswer(messageText, botAccessToken, callback) {
+    axios.get(`${config.botConstructorApiUrl}/bot-by-token?token=${botAccessToken}`).then(response => {
+        let botId = response.data.id
+        axios.get(`${config.botConstructorApiUrl}/text-message-answers?botId=${botId}`).then(response => {
+            let currentTextMessageAnswer = response.data.find(textMessageAnswer => textMessageAnswer.message == messageText)
+            callback(currentTextMessageAnswer.answer)
+        }).catch(err => {
             throw err
-        } else {
-            console.log(`[${(new Date).toISOString()}] New TextMessageAnswer has been added`)
-            callback()
-        }
+        })
+    }).catch(err => {
+        throw err
     })
 }
 
-function getTextMessageAnswer(messageText, botAccessToken, callback) {
-    TextMessageAnswer.findOne(
-        {
-            messageText: messageText,
-            botAccessToken: botAccessToken
-        }, (err, textMessageAnswer) => {
-            if (err) {
-                throw err
-            } else {
-                console.log(`[${(new Date).toISOString()}] Getting of TextMessageAnswer`)
-                if (textMessageAnswer) {
-                    callback(textMessageAnswer.answerText)
-                } else {
-                    callback(null)
-                }
-            }
-        })
-}
-
-module.exports.addTextMessageAnswer = addTextMessageAnswer
 module.exports.getTextMessageAnswer = getTextMessageAnswer

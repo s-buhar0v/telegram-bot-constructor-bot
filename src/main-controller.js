@@ -1,5 +1,6 @@
 const textMessageAnswerRepository = require('./repositories/text-message-answer-repository')
 const inlineKeyboardRepository = require('./repositories/inline-keyboard-repository')
+const interviewRepository = require('./repositories/interview-repository')
 const config = require('../config')
 
 function handleStart(bot) {
@@ -8,7 +9,7 @@ function handleStart(bot) {
             bot.sendMessage(
                 message.chat.id, text, {
                     reply_markup: {
-                        inline_keyboard: [keys]
+                        inline_keyboard: keys
                     }
                 })
         })
@@ -49,15 +50,20 @@ function handleCallbackQuery(bot) {
                         }), options)
                     })
                 })
+                break
+            }
+            case 'interview':{
+                break
             }
             case 'back': {
                 getStartMessage((text, keys) => {
                     bot.editMessageText(text, options).then(() => {
                         bot.editMessageReplyMarkup(JSON.stringify({
-                            inline_keyboard: [keys]
+                            inline_keyboard: keys
                         }), options)
                     })
                 })
+                break
             }
         }
     })
@@ -65,16 +71,29 @@ function handleCallbackQuery(bot) {
 
 function getStartMessage(callback) {
     inlineKeyboardRepository.getInlineKeys(config.botAccessToken, keys => {
-        let inlineKeyBoard = keys.map(key => {
-            return {
-                text: key.buttonText,
-                callback_data: JSON.stringify({
-                    id: key._id,
-                    type: 'inline'
-                })
-            }
+        interviewRepository.getInterviews(config.botAccessToken, interviews => {
+            let inlineKeyBoard = keys.map(key => {
+                return {
+                    text: key.buttonText,
+                    callback_data: JSON.stringify({
+                        id: key._id,
+                        type: 'inline'
+                    })
+                }
+            })
+
+            let interviewKeyBoard = interviews.map(interview => {
+                return {
+                    text: interview.interviewName,
+                    callback_data: JSON.stringify({
+                        id: interview._id,
+                        type: 'interview'
+                    })
+                }
+            })
+
+            callback(`Hello, I'm bot constrcutor`, [inlineKeyBoard, interviewKeyBoard])
         })
-        callback(`Hello, I'm bot constrcutor`, inlineKeyBoard)
     })
 }
 
