@@ -4,33 +4,26 @@ const axios = require('axios')
 const config = require('../../config')
 
 
-function getInlineKeys(botAccessToken, callback) {
-    InlineKey.find({ botAccessToken: botAccessToken }, (err, keys) => {
-        if (err) {
-            throw err
-        } else {
-            console.log(`[${(new Date).toISOString()}] Getting of InlineKeys`)
-            callback(keys)
+async function getInlineKeys(botAccessToken, callback) {
+    try {
+        let botResponse = await axios.get(`${config.botConstructorApiUrl}/bot-by-token?token=${botAccessToken}`)
+        let inlineKeysResponse = await axios.get(`${config.botConstructorApiUrl}/inline-keys?botId=${botResponse.data.id}`)
+
+        if (!inlineKeysResponse.data) {
+            callback([])
         }
-    })
+
+        callback(inlineKeysResponse.data)
+    } catch (error) {
+        throw error
+    }
 }
 
-// function getInlineKeys(botId, callback) {
-//     axios.get(`${config.botConstructorApiUrl}/bot-by-token?token=${botAccessToken}`).then(response => {
-//         let botId = response.data.id
-//         axios.get(`${config.botConstructorApiUrl}/bot-by-token?token=${botAccessToken}`).then(response => {
-//             console.log(response.data)
-//         }).catch(err => { throw err })
-//     }).catch(err => { throw err })
-// }
+function getInlineKeyAnswerText(id, botAccessToken, callback) {
+    getInlineKeys(botAccessToken, keys => {
+        let currentKey = keys.find(key => key._id == id)
 
-function getInlineKeyAnswerText(id, callback) {
-    InlineKey.findById(id, (err, key) => {
-        if (err) {
-            throw err
-        } else {
-            callback(key.answerText)
-        }
+        callback(currentKey.answer)
     })
 }
 

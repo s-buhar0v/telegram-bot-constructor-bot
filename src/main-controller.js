@@ -51,7 +51,7 @@ function handleCallbackQuery(bot) {
 
         switch (type) {
             case 'inline': {
-                inlineKeyboardRepository.getInlineKeyAnswerText(parsedCallbackData.id, asnwerText => {
+                inlineKeyboardRepository.getInlineKeyAnswerText(parsedCallbackData.id, config.botAccessToken, asnwerText => {
                     bot.editMessageText(asnwerText, options).then(() => {
                         bot.editMessageReplyMarkup(JSON.stringify({
                             inline_keyboard: [
@@ -82,9 +82,10 @@ function handleCallbackQuery(bot) {
 function getStartMessage(callback) {
     inlineKeyboardRepository.getInlineKeys(config.botAccessToken, keys => {
         interviewRepository.getInterviews(config.botAccessToken, interviews => {
+            console.log(keys)
             let inlineKeyBoard = keys.map(key => {
                 return {
-                    text: key.buttonText,
+                    text: key.caption,
                     callback_data: JSON.stringify({
                         id: key._id,
                         type: 'inline'
