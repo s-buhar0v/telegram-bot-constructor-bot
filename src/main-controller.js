@@ -1,17 +1,27 @@
 const textMessageAnswerRepository = require('./repositories/text-message-answer-repository')
 const inlineKeyboardRepository = require('./repositories/inline-keyboard-repository')
 const interviewRepository = require('./repositories/interview-repository')
+const userRepository = require('./repositories/users-repository')
 const config = require('../config')
 
 function handleStart(bot) {
     bot.onText(/\/start/, (message) => {
-        getStartMessage((text, keys) => {
-            bot.sendMessage(
-                message.chat.id, text, {
-                    reply_markup: {
-                        inline_keyboard: keys
-                    }
-                })
+        let user = {
+            telegramId: message.from.id,
+            firstName: message.from.first_name,
+            lastName: message.from.last_name,
+            userName: message.from.username
+        }
+
+        userRepository.addUser(user, config.botAccessToken, () => {
+            getStartMessage((text, keys) => {
+                bot.sendMessage(
+                    message.chat.id, text, {
+                        reply_markup: {
+                            inline_keyboard: keys
+                        }
+                    })
+            })
         })
     })
 }
@@ -52,7 +62,7 @@ function handleCallbackQuery(bot) {
                 })
                 break
             }
-            case 'interview':{
+            case 'interview': {
                 break
             }
             case 'back': {
