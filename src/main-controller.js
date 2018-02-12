@@ -13,7 +13,7 @@ function handleStart(bot) {
             userName: message.from.username
         }
 
-        userRepository.addUser(user, config.botAccessToken, () => {
+        userRepository.addUser(user, global.botId, () => {
             buildStartMessageMarkup((text, keys) => {
                 bot.sendMessage(
                     message.chat.id, text, {
@@ -31,7 +31,7 @@ function handleTextMessage(bot) {
         if (message.text !== '/start') {
             textMessageAnswerRepository.getTextMessageAnswer(
                 message.text,
-                config.botAccessToken,
+                global.botId,
                 textMessageAnswer => {
                     if (textMessageAnswer) { bot.sendMessage(message.chat.id, textMessageAnswer) }
                 })
@@ -51,7 +51,7 @@ function handleCallbackQuery(bot) {
 
         switch (type) {
             case 'inline': {
-                inlineKeyboardRepository.getInlineKeyAnswerText(parsedCallbackData.id, config.botAccessToken, asnwerText => {
+                inlineKeyboardRepository.getInlineKeyAnswerText(parsedCallbackData.id, global.botId, asnwerText => {
                     bot.editMessageText(asnwerText, options).then(() => {
                         bot.editMessageReplyMarkup(JSON.stringify({
                             inline_keyboard: [
@@ -63,7 +63,7 @@ function handleCallbackQuery(bot) {
                 break
             }
             case 'interview': {
-                interviewRepository.getInterviewAnswers(parsedCallbackData.id, config.botAccessToken, interviewAnswers => {
+                interviewRepository.getInterviewAnswers(parsedCallbackData.id, global.botId, interviewAnswers => {
                     let answerKeys = buildInterviewMessageMarkup(interviewAnswers.answers)
 
                     bot.editMessageText(interviewAnswers.question, options).then(() => {
@@ -92,8 +92,8 @@ function handleCallbackQuery(bot) {
 }
 
 function buildStartMessageMarkup(callback) {
-    inlineKeyboardRepository.getInlineKeys(config.botAccessToken, keys => {
-        interviewRepository.getInterviews(config.botAccessToken, interviews => {
+    inlineKeyboardRepository.getInlineKeys(global.botId, keys => {
+        interviewRepository.getInterviews(global.botId, interviews => {
             let inlineKeyBoard = keys.map(key => {
                 return {
                     text: key.caption,

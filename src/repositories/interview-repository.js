@@ -2,33 +2,39 @@ const axios = require('axios')
 
 const config = require('../../config')
 
-async function getInterviews(botAccessToken, callback) {
-    let botResponse = await axios.get(`${config.botConstructorApiUrl}/bot-by-token?token=${botAccessToken}`)
-    let interviewResponse = await axios.get(`${config.botConstructorApiUrl}/interviews?botId=${botResponse.data.id}`)
+async function getInterviews(botId, callback) {
+    try {
+        let interviewResponse = await axios.get(`${config.botConstructorApiUrl}/interviews?botId=${botId}`)
 
-    if (!interviewResponse.data) {
-        callback([])
+        if (!interviewResponse.data) {
+            callback([])
+        }
+
+        callback(interviewResponse.data)
+    } catch (error) {
+        throw err
     }
-
-    callback(interviewResponse.data)
 }
 
-async function getInterviewAnswers(interviewId, botAccessToken, callback) {
-    let botResponse = await axios.get(`${config.botConstructorApiUrl}/bot-by-token?token=${botAccessToken}`)
-    let interviewResponse = await axios.get(`${config.botConstructorApiUrl}/interviews?botId=${botResponse.data.id}`)
+async function getInterviewAnswers(interviewId, botId, callback) {
+    try {
+        let interviewResponse = await axios.get(`${config.botConstructorApiUrl}/interviews?botId=${botId}`)
 
-    let interview = interviewResponse.data.find(i => i._id == interviewId)
-    let answers = interview.answers.map(answer => {
-        return {
-            text: answer,
-            interviewId: interview.id
-        }
-    })
+        let interview = interviewResponse.data.find(i => i._id == interviewId)
+        let answers = interview.answers.map(answer => {
+            return {
+                text: answer,
+                interviewId: interview.id
+            }
+        })
 
-    callback({
-        question: interview.question,
-        answers: answers
-    })
+        callback({
+            question: interview.question,
+            answers: answers
+        })
+    } catch (err) {
+        throw err
+    }
 }
 
 module.exports.getInterviews = getInterviews

@@ -3,10 +3,9 @@ const FormData = require('form-data');
 
 const config = require('../../config')
 
-async function addUser(user, botAccessToken, callback) {
+async function addUser(user, botId, callback) {
     try {
-        let botResponse = await axios.get(`${config.botConstructorApiUrl}/bot-by-token?token=${botAccessToken}`)
-        let userResponse = await axios.get(`${config.botConstructorApiUrl}/user?telegramId=${user.telegramId}&botId=${botResponse.data.id}`)
+        let userResponse = await axios.get(`${config.botConstructorApiUrl}/user?telegramId=${user.telegramId}&botId=${botId}`)
 
 
         if (!userResponse.data) {

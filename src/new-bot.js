@@ -1,12 +1,20 @@
 const TelegramBot = require('node-telegram-bot-api')
-const mongoose = require('mongoose')
+const axios = require('axios')
 
 const config = require('../config')
 const controller = require('./main-controller')
 
-let bot = new TelegramBot(config.botAccessToken, { polling: true });
-mongoose.connect(config.connectionString)
+let botAccessToken = process.argv[2]
+let bot = new TelegramBot(botAccessToken, { polling: true });
 
-controller.handleStart(bot)
-controller.handleTextMessage(bot)
-controller.handleCallbackQuery(bot)
+axios.get(`${config.botConstructorApiUrl}/bot-by-token?token=${botAccessToken}`).then(response => {
+    global.botId = response.data.id
+
+    controller.handleStart(bot)
+    controller.handleTextMessage(bot)
+    controller.handleCallbackQuery(bot)
+}).catch(err => {
+    console.log(err)
+    process.exit(1)
+})
+
