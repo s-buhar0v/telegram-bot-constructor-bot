@@ -1,4 +1,3 @@
-const InlineKey = require('../models/inline-key')
 const axios = require('axios')
 
 const config = require('../../config')

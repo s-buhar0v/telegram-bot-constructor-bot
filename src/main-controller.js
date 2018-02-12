@@ -14,7 +14,7 @@ function handleStart(bot) {
         }
 
         userRepository.addUser(user, config.botAccessToken, () => {
-            getStartMessage((text, keys) => {
+            buildStartMessageMarkup((text, keys) => {
                 bot.sendMessage(
                     message.chat.id, text, {
                         reply_markup: {
@@ -63,10 +63,22 @@ function handleCallbackQuery(bot) {
                 break
             }
             case 'interview': {
+                interviewRepository.getInterviewAnswers(parsedCallbackData.id, config.botAccessToken, interviewAnswers => {
+                    let answerKeys = buildInterviewMessageMarkup(interviewAnswers.answers)
+
+                    bot.editMessageText(interviewAnswers.question, options).then(() => {
+                        bot.editMessageReplyMarkup(JSON.stringify({
+                            inline_keyboard: [
+                                answerKeys,
+                                [{ text: '↩️', callback_data: JSON.stringify({ type: 'back' }) }]
+                            ]
+                        }), options)
+                    })
+                })
                 break
             }
             case 'back': {
-                getStartMessage((text, keys) => {
+                buildStartMessageMarkup((text, keys) => {
                     bot.editMessageText(text, options).then(() => {
                         bot.editMessageReplyMarkup(JSON.stringify({
                             inline_keyboard: keys
@@ -79,10 +91,9 @@ function handleCallbackQuery(bot) {
     })
 }
 
-function getStartMessage(callback) {
+function buildStartMessageMarkup(callback) {
     inlineKeyboardRepository.getInlineKeys(config.botAccessToken, keys => {
         interviewRepository.getInterviews(config.botAccessToken, interviews => {
-            console.log(keys)
             let inlineKeyBoard = keys.map(key => {
                 return {
                     text: key.caption,
@@ -95,7 +106,7 @@ function getStartMessage(callback) {
 
             let interviewKeyBoard = interviews.map(interview => {
                 return {
-                    text: interview.interviewName,
+                    text: interview.name,
                     callback_data: JSON.stringify({
                         id: interview._id,
                         type: 'interview'
@@ -105,6 +116,18 @@ function getStartMessage(callback) {
 
             callback(`Hello, I'm bot constrcutor`, [inlineKeyBoard, interviewKeyBoard])
         })
+    })
+}
+
+function buildInterviewMessageMarkup(answers) {
+    return answers.map(answer => {
+        return {
+            text: answer.text,
+            callback_data: JSON.stringify({
+                type: 'answer',
+                id: answer.interviewId
+            })
+        }
     })
 }
 
