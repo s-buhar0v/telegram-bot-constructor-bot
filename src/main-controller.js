@@ -53,28 +53,50 @@ function handleCallbackQuery(bot) {
             case 'inline': {
                 inlineKeyboardRepository.getInlineKeyAnswerText(parsedCallbackData.id, global.botId, asnwerText => {
                     bot.editMessageText(asnwerText, options).then(() => {
-                        bot.editMessageReplyMarkup(JSON.stringify({
-                            inline_keyboard: [
-                                [{ text: '↩️', callback_data: JSON.stringify({ type: 'back' }) }]
-                            ]
-                        }), options)
+                        setMessageWithReturnButton(bot, options)
                     })
                 })
                 break
             }
             case 'interview': {
-                interviewRepository.getInterviewAnswers(parsedCallbackData.id, global.botId, interviewAnswers => {
-                    let answerKeys = buildInterviewMessageMarkup(interviewAnswers.answers)
+                interviewRepository.isIterviewAnswerAlreadyExists(
+                    parsedCallbackData.id,
+                    global.botId,
+                    callbackData.from.id, isExists => {
+                        if (!isExists) {
+                            interviewRepository.getInterviewAnswers(parsedCallbackData.id, global.botId, interviewAnswers => {
+                                let answerKeys = buildInterviewMessageMarkup(interviewAnswers.answers)
 
-                    bot.editMessageText(interviewAnswers.question, options).then(() => {
-                        bot.editMessageReplyMarkup(JSON.stringify({
-                            inline_keyboard: [
-                                answerKeys,
-                                [{ text: '↩️', callback_data: JSON.stringify({ type: 'back' }) }]
-                            ]
-                        }), options)
+                                bot.editMessageText(interviewAnswers.question, options).then(() => {
+                                    bot.editMessageReplyMarkup(JSON.stringify({
+                                        inline_keyboard: [
+                                            answerKeys,
+                                            [{ text: '↩️', callback_data: JSON.stringify({ type: 'back' }) }]
+                                        ]
+                                    }), options)
+                                })
+                            })
+                        } else {
+                            setMessageWithReturnButton(bot, options)
+                        }
                     })
-                })
+                break
+            }
+            case 'answer': {
+                interviewRepository.isIterviewAnswerAlreadyExists(
+                    parsedCallbackData.id,
+                    global.botId,
+                    callbackData.from.id, isExists => {
+                        if (!isExists) {
+                            interviewRepository.addInterviewAnswer(
+                                parsedCallbackData.id,
+                                callbackData.from.id,
+                                parsedCallbackData.answer,
+                                global.botId, () => {
+                                    setMessageWithReturnButton(bot, options)
+                                })
+                        }
+                    })
                 break
             }
             case 'back': {
@@ -98,7 +120,7 @@ function buildStartMessageMarkup(callback) {
                 return {
                     text: key.caption,
                     callback_data: JSON.stringify({
-                        id: key._id,
+                        id: key.id,
                         type: 'inline'
                     })
                 }
@@ -108,7 +130,7 @@ function buildStartMessageMarkup(callback) {
                 return {
                     text: interview.name,
                     callback_data: JSON.stringify({
-                        id: interview._id,
+                        id: interview.id,
                         type: 'interview'
                     })
                 }
@@ -120,15 +142,24 @@ function buildStartMessageMarkup(callback) {
 }
 
 function buildInterviewMessageMarkup(answers) {
-    return answers.map(answer => {
+    return answers.map((answer, index) => {
         return {
             text: answer.text,
             callback_data: JSON.stringify({
                 type: 'answer',
-                id: answer.interviewId
+                id: answer.interviewId,
+                answer: index
             })
         }
     })
+}
+
+function setMessageWithReturnButton(bot, options) {
+    bot.editMessageReplyMarkup(JSON.stringify({
+        inline_keyboard: [
+            [{ text: '↩️', callback_data: JSON.stringify({ type: 'back' }) }]
+        ]
+    }), options)
 }
 
 module.exports.handleStart = handleStart

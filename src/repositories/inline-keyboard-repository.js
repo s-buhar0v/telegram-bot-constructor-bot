@@ -19,7 +19,7 @@ async function getInlineKeys(botId, callback) {
 
 function getInlineKeyAnswerText(id, botId, callback) {
     getInlineKeys(botId, keys => {
-        let currentKey = keys.find(key => key._id == id)
+        let currentKey = keys.find(key => key.id == id)
 
         callback(currentKey.answer)
     })

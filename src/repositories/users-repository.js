@@ -12,7 +12,7 @@ async function addUser(user, botId, callback) {
             let form = new FormData()
 
             form.append('telegramId', `${user.telegramId}`)
-            form.append('botId', `${botResponse.data.id}`)
+            form.append('botId', `${botId}`)
             form.append('firstName', `${user.firstName}`)
             form.append('lastName', `${user.lastName}`)
             form.append('userName', `${user.userName}`)
