@@ -4,7 +4,7 @@ const axios = require('axios')
 const config = require('../config')
 const controller = require('./main-controller')
 
-let botAccessToken = process.argv[2]
+let botAccessToken = process.env.BOT_ACCESS_TOKEN
 let bot = new TelegramBot(botAccessToken, { polling: true });
 
 axios.get(`${config.botConstructorApiUrl}/bot-by-token?token=${botAccessToken}`).then(response => {
