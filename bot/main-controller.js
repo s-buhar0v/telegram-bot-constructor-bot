@@ -136,7 +136,7 @@ function buildStartMessageMarkup(callback) {
                 }
             })
 
-            callback(`Hello, I'm coool telegram bot constrcutor`, [inlineKeyBoard, interviewKeyBoard])
+            callback(`Hello, I'm coool telegram bot constrcutor by MSP`, [inlineKeyBoard, interviewKeyBoard])
         })
     })
 }
