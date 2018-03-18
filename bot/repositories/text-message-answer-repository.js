@@ -5,12 +5,14 @@ const config = require('../../config')
 function getTextMessageAnswer(messageText, botId, callback) {
     axios.get(`${config.botConstructorApiUrl}/text-message-answers?botId=${botId}`).then(response => {
         console.log(response.data)
-        if (response.data.length > 0) {
-            let currentTextMessageAnswer = response.data.find(textMessageAnswer => textMessageAnswer.message == messageText)
+        let currentTextMessageAnswer = response.data.find(textMessageAnswer => textMessageAnswer.message == messageText)
+
+        if (currentTextMessageAnswer) {
             callback(currentTextMessageAnswer.answer)
         } else {
             callback(null)
         }
+
     }).catch(err => {
         throw err
     })
