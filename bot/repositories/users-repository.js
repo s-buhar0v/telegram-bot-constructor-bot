@@ -3,7 +3,7 @@ const FormData = require('form-data');
 
 const config = require('../../config')
 
-async function addUser(user, botId, callback) {
+async function addUser(user, botId) {
     try {
         let userResponse = await axios.get(`${config.botConstructorApiUrl}/user?telegramId=${user.telegramId}&botId=${botId}`)
 
@@ -21,10 +21,7 @@ async function addUser(user, botId, callback) {
                 headers: form.getHeaders()
             })
 
-            callback()
         }
-
-        callback()
     } catch (error) {
         throw error
     }
@@ -57,6 +54,16 @@ async function getUser(telegramId) {
     }
 }
 
+
+async function getUsers(telegramId) {
+    try {
+        let response = await axios.get(`${config.botConstructorApiUrl}/users?botId=${global.botId}`)
+        return response.data
+    } catch (error) {
+        throw error
+    }
+}
 module.exports.addUser = addUser
 module.exports.getUser = getUser
+module.exports.getUsers = getUsers
 module.exports.setNetworking = setNetworking

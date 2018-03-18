@@ -6,11 +6,12 @@ const congnitiveService = require('./congnitive-service')
 const textConstants = require('./text-constants')
 const config = require('../config')
 const networkingController = require('./networking-controller')
+const UserRepository = require('./repositories/users-repository')
 
 const networkingEnabled = true;
 
 function handleStart(bot) {
-    bot.onText(/\/start/, (message) => {
+    bot.onText(/\/start/, async (message) => {
         let user = {
             telegramId: message.from.id,
             firstName: message.from.first_name,
@@ -18,21 +19,20 @@ function handleStart(bot) {
             userName: message.from.username
         }
 
-        userRepository.addUser(user, global.botId, () => {
-            buildStartMessageMarkup((text, keys) => {
-                bot.sendMessage(
-                    message.chat.id, text, {
-                        reply_markup: {
-                            inline_keyboard: keys
-                        }
-                    })
-            })
+        await userRepository.addUser(user, global.botId)
+        buildStartMessageMarkup((text, keys) => {
+            bot.sendMessage(
+                message.chat.id, text, {
+                    reply_markup: {
+                        inline_keyboard: keys
+                    }
+                })
         })
     })
 }
 
 function handleTextMessage(bot) {
-    bot.onText(/\.*/, (message) => {
+    bot.on('message', async (message) => {
         if (message.text !== '/start') {
             if (!networkingController.dialogs[message.chat.id]) {
                 textMessageAnswerRepository.getTextMessageAnswer(
@@ -60,7 +60,7 @@ function handleTextMessage(bot) {
 }
 
 function handleCallbackQuery(bot) {
-    bot.on('callback_query', callbackData => {
+    bot.on('callback_query', async (callbackData) => {
         let parsedCallbackData = JSON.parse(callbackData.data)
         let type = parsedCallbackData.type
 
@@ -120,7 +120,28 @@ function handleCallbackQuery(bot) {
                 break
             }
             case 'networking': {
-                networkingController.startDialog(callbackData.message, bot)
+                let user = await UserRepository.getUser(callbackData.message.chat.id)
+                let userNetworking = JSON.parse(user.networking)
+                if (Object.keys(userNetworking).length === 0) {
+                    networkingController.startDialog(callbackData.message.chat.id, bot)
+                } else {
+                    networkingController.sendUser(0, 1, callbackData.message.chat.id, bot)
+                }
+                break
+            }
+            case 'next': {
+                networkingController.sendUser(parsedCallbackData.i, parsedCallbackData.inc, callbackData.message.chat.id, bot)
+                break
+            }
+            case 'menu': {
+                buildStartMessageMarkup((text, keys) => {
+                    bot.sendMessage(
+                        callbackData.message.chat.id, text, {
+                            reply_markup: {
+                                inline_keyboard: keys
+                            }
+                        })
+                })
                 break
             }
             case 'back': {

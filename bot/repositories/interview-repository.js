@@ -13,7 +13,7 @@ async function getInterviews(botId, callback) {
 
         callback(interviewResponse.data)
     } catch (error) {
-        throw err
+        throw error
     }
 }
 
