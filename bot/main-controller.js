@@ -2,6 +2,7 @@ const textMessageAnswerRepository = require('./repositories/text-message-answer-
 const inlineKeyboardRepository = require('./repositories/inline-keyboard-repository')
 const interviewRepository = require('./repositories/interview-repository')
 const userRepository = require('./repositories/users-repository')
+const congnitiveService = require('./congnitive-service')
 const config = require('../config')
 
 function handleStart(bot) {
@@ -33,7 +34,17 @@ function handleTextMessage(bot) {
                 message.text,
                 global.botId,
                 textMessageAnswer => {
-                    if (textMessageAnswer) { bot.sendMessage(message.chat.id, textMessageAnswer) }
+                    if (textMessageAnswer) {
+                        bot.sendMessage(message.chat.id, textMessageAnswer)
+                    } else {
+                        congnitiveService.findTextMessageAnswer(message.text, (textMessageAnswer) => {
+                            if (textMessageAnswer) {
+                                bot.sendPhoto(message.chat.id, textMessageAnswer.imageUrl, {
+                                    caption: textMessageAnswer.answerText
+                                })
+                            }
+                        })
+                    }
                 })
         }
     })
