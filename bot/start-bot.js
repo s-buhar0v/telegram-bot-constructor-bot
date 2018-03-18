@@ -14,7 +14,6 @@ axios.get(`${config.botConstructorApiUrl}/bot-by-token?token=${botAccessToken}`)
     controller.handleTextMessage(bot)
     controller.handleCallbackQuery(bot)
 }).catch(err => {
-    console.log(err)
     process.exit(1)
 })
 

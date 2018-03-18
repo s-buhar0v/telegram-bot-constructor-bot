@@ -5,6 +5,9 @@ const userRepository = require('./repositories/users-repository')
 const congnitiveService = require('./congnitive-service')
 const textConstants = require('./text-constants')
 const config = require('../config')
+const networkingController = require('./networking-controller')
+
+const networkingEnabled = true;
 
 function handleStart(bot) {
     bot.onText(/\/start/, (message) => {
@@ -31,23 +34,27 @@ function handleStart(bot) {
 function handleTextMessage(bot) {
     bot.onText(/\.*/, (message) => {
         if (message.text !== '/start') {
-            textMessageAnswerRepository.getTextMessageAnswer(
-                message.text,
-                global.botId,
-                textMessageAnswer => {
-                    if (textMessageAnswer) {
-                        bot.sendMessage(message.chat.id, textMessageAnswer)
-                    } else {
-                        bot.sendMessage(message.chat.id, textConstants.notFoundMessage)
-                        congnitiveService.findTextMessageAnswer(message.text, (cognitiveTextMessageAnswer) => {
-                            if (cognitiveTextMessageAnswer) {
-                                bot.sendPhoto(message.chat.id, cognitiveTextMessageAnswer.imageUrl, {
-                                    caption: `${cognitiveTextMessageAnswer.answerText}`
-                                })
-                            }
-                        })
-                    }
-                })
+            if (!networkingController.dialogs[message.chat.id]) {
+                textMessageAnswerRepository.getTextMessageAnswer(
+                    message.text,
+                    global.botId,
+                    textMessageAnswer => {
+                        if (textMessageAnswer) {
+                            bot.sendMessage(message.chat.id, textMessageAnswer)
+                        } else {
+                            bot.sendMessage(message.chat.id, textConstants.notFoundMessage)
+                            congnitiveService.findTextMessageAnswer(message.text, (cognitiveTextMessageAnswer) => {
+                                if (cognitiveTextMessageAnswer) {
+                                    bot.sendPhoto(message.chat.id, cognitiveTextMessageAnswer.imageUrl, {
+                                        caption: `${cognitiveTextMessageAnswer.answerText}`
+                                    })
+                                }
+                            })
+                        }
+                    })
+            } else {
+                networkingController.handleDialogMessage(message, bot)
+            }
         }
     })
 }
@@ -112,6 +119,10 @@ function handleCallbackQuery(bot) {
                     })
                 break
             }
+            case 'networking': {
+                networkingController.startDialog(callbackData.message, bot)
+                break
+            }
             case 'back': {
                 buildStartMessageMarkup((text, keys) => {
                     bot.editMessageText(text, options).then(() => {
@@ -148,6 +159,15 @@ function buildStartMessageMarkup(callback) {
                     })
                 }
             })
+
+            if (networkingEnabled) {
+                inlineKeyBoard.push({
+                    text: 'Нетворкинг',
+                    callback_data: JSON.stringify({
+                        type: 'networking'
+                    })
+                })
+            }
 
             callback(`Hello, I'm telegram bot constrcutor by MSP`, [inlineKeyBoard, interviewKeyBoard])
         })
