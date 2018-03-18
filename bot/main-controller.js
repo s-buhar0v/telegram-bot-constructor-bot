@@ -37,10 +37,10 @@ function handleTextMessage(bot) {
                     if (textMessageAnswer) {
                         bot.sendMessage(message.chat.id, textMessageAnswer)
                     } else {
-                        congnitiveService.findTextMessageAnswer(message.text, (textMessageAnswer) => {
-                            if (textMessageAnswer) {
-                                bot.sendPhoto(message.chat.id, textMessageAnswer.imageUrl, {
-                                    caption: textMessageAnswer.answerText
+                        congnitiveService.findTextMessageAnswer(message.text, (cognitiveTextMessageAnswer) => {
+                            if (cognitiveTextMessageAnswer) {
+                                bot.sendPhoto(message.chat.id, cognitiveTextMessageAnswer.imageUrl, {
+                                    caption: cognitiveTextMessageAnswer.answerText
                                 })
                             }
                         })
