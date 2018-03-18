@@ -8,7 +8,7 @@ function findTextMessageAnswer(message, callback) {
     axios.get(`${config.cognitiveServices.webSearchHost}?q=${encodeURIComponent(message)}`).then(textResponse => {
         axios.get(`${config.cognitiveServices.imageSearchHost}?q=${encodeURIComponent(message)}`).then(imageResponse => {
             callback({
-                answerText: textResponse.data.webPages.value[0].snippet,
+                answerText: `${textResponse.data.webPages.value[0].snippet}`,
                 imageUrl: imageResponse.data.value[0].contentUrl
             })
         }).catch(err => callback(null))

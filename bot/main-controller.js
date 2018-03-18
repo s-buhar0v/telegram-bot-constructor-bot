@@ -38,10 +38,11 @@ function handleTextMessage(bot) {
                     if (textMessageAnswer) {
                         bot.sendMessage(message.chat.id, textMessageAnswer)
                     } else {
+                        bot.sendMessage(message.chat.id, textConstants.notFoundMessage)
                         congnitiveService.findTextMessageAnswer(message.text, (cognitiveTextMessageAnswer) => {
                             if (cognitiveTextMessageAnswer) {
                                 bot.sendPhoto(message.chat.id, cognitiveTextMessageAnswer.imageUrl, {
-                                    caption: `${textConstants.notFoundMessage}\n${cognitiveTextMessageAnswer.answerText}`
+                                    caption: `${cognitiveTextMessageAnswer.answerText}`
                                 })
                             }
                         })

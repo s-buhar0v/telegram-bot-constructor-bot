@@ -4,9 +4,7 @@ const config = require('../../config')
 
 function getTextMessageAnswer(messageText, botId, callback) {
     axios.get(`${config.botConstructorApiUrl}/text-message-answers?botId=${botId}`).then(response => {
-        console.log(response.data)
         let currentTextMessageAnswer = response.data.find(textMessageAnswer => textMessageAnswer.message == messageText)
-
         if (currentTextMessageAnswer) {
             callback(currentTextMessageAnswer.answer)
         } else {
