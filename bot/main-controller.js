@@ -3,6 +3,7 @@ const inlineKeyboardRepository = require('./repositories/inline-keyboard-reposit
 const interviewRepository = require('./repositories/interview-repository')
 const userRepository = require('./repositories/users-repository')
 const congnitiveService = require('./congnitive-service')
+const textConstants = require('./text-constants')
 const config = require('../config')
 
 function handleStart(bot) {
@@ -40,7 +41,7 @@ function handleTextMessage(bot) {
                         congnitiveService.findTextMessageAnswer(message.text, (cognitiveTextMessageAnswer) => {
                             if (cognitiveTextMessageAnswer) {
                                 bot.sendPhoto(message.chat.id, cognitiveTextMessageAnswer.imageUrl, {
-                                    caption: cognitiveTextMessageAnswer.answerText
+                                    caption: `${textConstants.notFoundMessage}\n${cognitiveTextMessageAnswer.answerText}`
                                 })
                             }
                         })
