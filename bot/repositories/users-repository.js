@@ -1,12 +1,10 @@
 const axios = require('axios')
-const FormData = require('form-data');
-
+const FormData = require('form-data')
 const config = require('../../config')
 
 async function addUser(user, botId) {
     try {
         let userResponse = await axios.get(`${config.botConstructorApiUrl}/user?telegramId=${user.telegramId}&botId=${botId}`)
-
 
         if (!userResponse.data) {
             let form = new FormData()
@@ -55,7 +53,7 @@ async function getUser(telegramId) {
 }
 
 
-async function getUsers(telegramId) {
+async function getUsers() {
     try {
         let response = await axios.get(`${config.botConstructorApiUrl}/users?botId=${global.botId}`)
         return response.data
