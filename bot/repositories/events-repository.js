@@ -1,4 +1,5 @@
 const axios = require('axios')
+const FormData = require('form-data')
 
 const config = require('../../config')
 
@@ -14,7 +15,13 @@ async function getEvents() {
 
 async function removeEvent(id) {
     try {
-        let response = await axios.get(`${config.botConstructorApiUrl}/remove-event?id=${id}`)
+        let form = new FormData()
+
+        form.append('id', id)
+
+        let response = await axios.post(`${config.botConstructorApiUrl}/remove-event`, form, {
+            headers: form.getHeaders()
+        })
 
         return response.data
     } catch (error) {
