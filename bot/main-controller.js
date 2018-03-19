@@ -7,8 +7,7 @@ const textConstants = require('./text-constants')
 const config = require('../config')
 const networkingController = require('./networking-controller')
 const UserRepository = require('./repositories/users-repository')
-
-const networkingEnabled = true;
+const settingsRepository = require('./repositories/settings-repository')
 
 function handleStart(bot) {
     bot.onText(/\/start/, async (message) => {
@@ -160,7 +159,7 @@ function handleCallbackQuery(bot) {
 
 function buildStartMessageMarkup(callback) {
     inlineKeyboardRepository.getInlineKeys(global.botId, keys => {
-        interviewRepository.getInterviews(global.botId, interviews => {
+        interviewRepository.getInterviews(global.botId, async (interviews) => {
             let inlineKeyBoard = keys.map(key => {
                 return {
                     text: key.caption,
@@ -181,6 +180,7 @@ function buildStartMessageMarkup(callback) {
                 }
             })
 
+            const networkingEnabled = await settingsRepository.getNetworkingStatus()
             if (networkingEnabled) {
                 inlineKeyBoard.push({
                     text: 'Нетворкинг',
