@@ -94,11 +94,13 @@ async function handleDialogMessage(message, bot) {
             if (userNetworking.photo) {
                 bot.sendPhoto(message.chat.id, userNetworking.photo, {
                     caption: messageText,
-                    reply_markup: reply_markup
+                    reply_markup: reply_markup,
+                    parse_mode: "HTML"
                 })
             } else {
                 bot.sendMessage(message.chat.id, messageText, {
-                    reply_markup: reply_markup
+                    reply_markup: reply_markup,
+                    parse_mode: "HTML"
                 })
             }
         }
@@ -128,7 +130,8 @@ async function sendUser(index, increment, chatId, bot) {
             bot.sendPhoto(chatId, userNetworking.photo,
                 {
                     reply_markup: reply_markup,
-                    caption: messageText
+                    caption: messageText,
+                    parse_mode: "HTML"
                 })
         } else {
             bot.sendMessage(
@@ -136,6 +139,7 @@ async function sendUser(index, increment, chatId, bot) {
                 messageText,
                 {
                     reply_markup: reply_markup,
+                    parse_mode: "HTML"
                 })
         }
     }

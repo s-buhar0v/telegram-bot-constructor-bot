@@ -23,7 +23,8 @@ function handleStart(bot) {
             bot.sendMessage(
                 message.chat.id, text, {
                     reply_markup: {
-                        inline_keyboard: keys
+                        inline_keyboard: keys,
+                        parse_mode: "HTML"
                     }
                 })
         })
@@ -39,13 +40,16 @@ function handleTextMessage(bot) {
                     global.botId,
                     textMessageAnswer => {
                         if (textMessageAnswer) {
-                            bot.sendMessage(message.chat.id, textMessageAnswer)
+                            bot.sendMessage(message.chat.id, textMessageAnswer, {
+                                parse_mode: "HTML"
+                            })
                         } else {
                             bot.sendMessage(message.chat.id, textConstants.notFoundMessage)
                             congnitiveService.findTextMessageAnswer(message.text, (cognitiveTextMessageAnswer) => {
                                 if (cognitiveTextMessageAnswer) {
                                     bot.sendPhoto(message.chat.id, cognitiveTextMessageAnswer.imageUrl, {
-                                        caption: `${cognitiveTextMessageAnswer.answerText}`
+                                        caption: `${cognitiveTextMessageAnswer.answerText}`,
+                                        parse_mode: "HTML"
                                     })
                                 }
                             })
@@ -66,6 +70,7 @@ function handleCallbackQuery(bot) {
         let options = {
             chat_id: callbackData.message.chat.id,
             message_id: callbackData.message.message_id,
+            parse_mode: "HTML"
         }
 
         switch (type) {
@@ -137,7 +142,8 @@ function handleCallbackQuery(bot) {
                     bot.sendMessage(
                         callbackData.message.chat.id, text, {
                             reply_markup: {
-                                inline_keyboard: keys
+                                inline_keyboard: keys,
+                                parse_mode: "HTML"
                             }
                         })
                 })
