@@ -5,29 +5,15 @@ const userRepository = require('./repositories/users-repository')
 const congnitiveService = require('./congnitive-service')
 const textConstants = require('./text-constants')
 const config = require('../config')
-const networkingController = require('./networking-controller')
 const UserRepository = require('./repositories/users-repository')
 const settingsRepository = require('./repositories/settings-repository')
 
-function handleStart(bot) {
-    bot.onText(/\/start/, async (message) => {
-        let user = {
-            telegramId: message.from.id,
-            firstName: message.from.first_name,
-            lastName: message.from.last_name,
-            userName: message.from.username
-        }
+const startMessageController = require('./controllers/start-message-controller')
+const networkingController = require('./controllers/networking-controller')
 
-        await userRepository.addUser(user, global.botId)
-        buildStartMessageMarkup((text, keys) => {
-            bot.sendMessage(
-                message.chat.id, text, {
-                    reply_markup: {
-                        inline_keyboard: keys,
-                        parse_mode: "HTML"
-                    }
-                })
-        })
+async function handleStart(bot) {
+    bot.onText(/\/start/, async (message) => {
+        await startMessageController.handleStartMessage(message, bot)
     })
 }
 
@@ -160,44 +146,6 @@ function handleCallbackQuery(bot) {
                 break
             }
         }
-    })
-}
-
-function buildStartMessageMarkup(callback) {
-    inlineKeyboardRepository.getInlineKeys(global.botId, keys => {
-        interviewRepository.getInterviews(global.botId, async (interviews) => {
-            let inlineKeyBoard = keys.map(key => {
-                return {
-                    text: key.caption,
-                    callback_data: JSON.stringify({
-                        id: key.id,
-                        type: 'inline'
-                    })
-                }
-            })
-
-            let interviewKeyBoard = interviews.map(interview => {
-                return {
-                    text: interview.name,
-                    callback_data: JSON.stringify({
-                        id: interview.id,
-                        type: 'interview'
-                    })
-                }
-            })
-
-            const networkingEnabled = await settingsRepository.getNetworkingStatus()
-            if (networkingEnabled) {
-                inlineKeyBoard.push({
-                    text: 'Нетворкинг',
-                    callback_data: JSON.stringify({
-                        type: 'networking'
-                    })
-                })
-            }
-
-            callback(`Hello, I'm telegram bot constrcutor by MSP`, [inlineKeyBoard, interviewKeyBoard])
-        })
     })
 }
 

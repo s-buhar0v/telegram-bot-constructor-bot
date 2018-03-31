@@ -1,6 +1,6 @@
-const NetworkingConstants = require('./networking-constants')
-const UserRepository = require('./repositories/users-repository')
-const settingsRepositoty = require('./repositories/settings-repository')
+const NetworkingConstants = require('../networking-constants')
+const UserRepository = require('../repositories/users-repository')
+const settingsRepositoty = require('../repositories/settings-repository')
 
 let dialogs = {}
 

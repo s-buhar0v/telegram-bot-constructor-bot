@@ -3,15 +3,15 @@ const FormData = require('form-data');
 
 const config = require('../../config')
 
-async function getInterviews(botId, callback) {
+async function getInterviews(botId) {
     try {
         let interviewResponse = await axios.get(`${config.botConstructorApiUrl}/interviews?botId=${botId}`)
 
-        if (!interviewResponse.data) {
-            callback([])
+        if (interviewResponse.data) {
+            return interviewResponse.data
+        } else {
+            return []
         }
-
-        callback(interviewResponse.data)
     } catch (error) {
         throw error
     }

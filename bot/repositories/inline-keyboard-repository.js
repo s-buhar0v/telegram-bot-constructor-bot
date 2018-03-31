@@ -3,15 +3,15 @@ const axios = require('axios')
 const config = require('../../config')
 
 
-async function getInlineKeys(botId, callback) {
+async function getInlineKeys(botId) {
     try {
         let inlineKeysResponse = await axios.get(`${config.botConstructorApiUrl}/inline-keys?botId=${botId}`)
 
-        if (!inlineKeysResponse.data) {
-            callback([])
+        if (inlineKeysResponse.data) {
+            return inlineKeysResponse.data
+        } else {
+            return []
         }
-
-        callback(inlineKeysResponse.data)
     } catch (error) {
         throw error
     }
