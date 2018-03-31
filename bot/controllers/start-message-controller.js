@@ -27,6 +27,7 @@ async function buildStartMessageMarkup(callback) {
     const inlineKeys = await inlineKeyboardRepository.getInlineKeys(global.botId)
     const interviews = await interviewRepository.getInterviews(global.botId)
     const networkingEnabled = await settingsRepository.getNetworkingStatus()
+    const messageText = await settingsRepository.getStartMessage()
     let keys = []
 
     inlineKeys.forEach(key => {
@@ -60,7 +61,7 @@ async function buildStartMessageMarkup(callback) {
     }
 
     return {
-        text: `Hello, I'm telegram bot constrcutor by MSP`,
+        text: messageText,
         keys: keys
     }
 }
