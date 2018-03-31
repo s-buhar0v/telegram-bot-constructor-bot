@@ -1,15 +1,16 @@
-const textMessageAnswerRepository = require('./repositories/text-message-answer-repository')
-const inlineKeyboardRepository = require('./repositories/inline-keyboard-repository')
-const interviewRepository = require('./repositories/interview-repository')
-const userRepository = require('./repositories/users-repository')
-const congnitiveService = require('./congnitive-service')
-const textConstants = require('./text-constants')
-const config = require('../config')
-const UserRepository = require('./repositories/users-repository')
-const settingsRepository = require('./repositories/settings-repository')
+const textMessageAnswerRepository = require('../repositories/text-message-answer-repository')
+const inlineKeyboardRepository = require('../repositories/inline-keyboard-repository')
+const interviewRepository = require('../repositories/interview-repository')
+const userRepository = require('../repositories/users-repository')
+const congnitiveService = require('../services/congnitive-service')
+const messageService = require('../services/message-service')
+const textConstants = require('../resources/text-constants')
+const config = require('../../config')
+const UserRepository = require('../repositories/users-repository')
+const settingsRepository = require('../repositories/settings-repository')
 
-const startMessageController = require('./controllers/start-message-controller')
-const networkingController = require('./controllers/networking-controller')
+const startMessageController = require('./start-message-controller')
+const networkingController = require('./networking-controller')
 
 async function handleStart(bot) {
     bot.onText(/\/start/, async (message) => {
@@ -61,10 +62,10 @@ function handleCallbackQuery(bot) {
 
         switch (type) {
             case 'inline': {
-                inlineKeyboardRepository.getInlineKeyAnswerText(parsedCallbackData.id, global.botId, asnwerText => {
-                    bot.editMessageText(asnwerText, options).then(() => {
-                        setMessageWithReturnButton(bot, options)
-                    })
+                let answerText = await inlineKeyboardRepository.getInlineKeyAnswerText(parsedCallbackData.id)
+                
+                bot.editMessageText(answerText, options).then(() => {
+                    setMessageWithReturnButton(bot, options)
                 })
                 break
             }
@@ -124,24 +125,16 @@ function handleCallbackQuery(bot) {
                 break
             }
             case 'menu': {
-                buildStartMessageMarkup((text, keys) => {
-                    bot.sendMessage(
-                        callbackData.message.chat.id, text, {
-                            reply_markup: {
-                                inline_keyboard: keys,
-                                parse_mode: "HTML"
-                            }
-                        })
-                })
+                await startMessageController.sendStartMessage(callbackData.message.chat.id, bot)
                 break
             }
             case 'back': {
-                buildStartMessageMarkup((text, keys) => {
-                    bot.editMessageText(text, options).then(() => {
-                        bot.editMessageReplyMarkup(JSON.stringify({
-                            inline_keyboard: keys
-                        }), options)
-                    })
+                let startMessage = await messageService.buildStartMessageMarkup()
+
+                bot.editMessageText(startMessage.text, options).then(() => {
+                    bot.editMessageReplyMarkup(JSON.stringify({
+                        inline_keyboard: startMessage.keys
+                    }), options)
                 })
                 break
             }

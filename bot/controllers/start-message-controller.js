@@ -2,6 +2,7 @@ const interviewRepository = require('../repositories/interview-repository')
 const inlineKeyboardRepository = require('../repositories/inline-keyboard-repository')
 const userRepository = require('../repositories/users-repository')
 const settingsRepository = require('../repositories/settings-repository')
+const messageService = require('../services/message-service')
 
 async function handleStartMessage(message, bot) {
     let user = {
@@ -12,7 +13,7 @@ async function handleStartMessage(message, bot) {
     }
 
     await userRepository.addUser(user, global.botId)
-    let startMessage = await buildStartMessageMarkup()
+    let startMessage = await messageService.buildStartMessageMarkup()
 
     bot.sendMessage(
         message.chat.id, startMessage.text, {
@@ -23,47 +24,18 @@ async function handleStartMessage(message, bot) {
         })
 }
 
-async function buildStartMessageMarkup(callback) {
-    const inlineKeys = await inlineKeyboardRepository.getInlineKeys(global.botId)
-    const interviews = await interviewRepository.getInterviews(global.botId)
-    const networkingEnabled = await settingsRepository.getNetworkingStatus()
-    const messageText = await settingsRepository.getStartMessage()
-    let keys = []
+async function sendStartMessage(chatId, bot) {
+    let startMessage = await messageService.buildStartMessageMarkup()
 
-    inlineKeys.forEach(key => {
-        keys.push([{
-            text: key.caption,
-            callback_data: JSON.stringify({
-                id: key.id,
-                type: 'inline'
-            })
-        }])
-    })
-
-    interviews.forEach(interview => {
-        keys.push([{
-            text: interview.name,
-            callback_data: JSON.stringify({
-                id: interview.id,
-                type: 'interview'
-            })
-        }])
-    })
-
-
-    if (networkingEnabled) {
-        keys.push([{
-            text: 'Нетворкинг',
-            callback_data: JSON.stringify({
-                type: 'networking'
-            })
-        }])
-    }
-
-    return {
-        text: messageText,
-        keys: keys
-    }
+    bot.sendMessage(
+        chatId, startMessage.text, {
+            reply_markup: {
+                inline_keyboard: startMessage.keys,
+                parse_mode: "HTML"
+            }
+        })
 }
 
+
 module.exports.handleStartMessage = handleStartMessage
+module.exports.sendStartMessage = sendStartMessage

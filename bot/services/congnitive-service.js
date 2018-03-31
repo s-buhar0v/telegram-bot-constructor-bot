@@ -1,6 +1,6 @@
 const axios = require('axios')
 
-const config = require('../config')
+const config = require('../../config')
 
 axios.defaults.headers.common['Ocp-Apim-Subscription-Key'] = config.cognitiveServices.apiKey
 

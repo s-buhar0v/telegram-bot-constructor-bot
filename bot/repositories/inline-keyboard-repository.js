@@ -2,7 +2,6 @@ const axios = require('axios')
 
 const config = require('../../config')
 
-
 async function getInlineKeys(botId) {
     try {
         let inlineKeysResponse = await axios.get(`${config.botConstructorApiUrl}/inline-keys?botId=${botId}`)
@@ -17,12 +16,13 @@ async function getInlineKeys(botId) {
     }
 }
 
-function getInlineKeyAnswerText(id, botId, callback) {
-    getInlineKeys(botId, keys => {
-        let currentKey = keys.find(key => key.id == id)
 
-        callback(currentKey.answer)
-    })
+
+async function getInlineKeyAnswerText(id, callback) {
+    let inlineKeys = await getInlineKeys(global.botId)
+    let currentKey = inlineKeys.find(key => key.id == id)
+    
+    return currentKey.answer
 }
 
 module.exports.getInlineKeys = getInlineKeys
