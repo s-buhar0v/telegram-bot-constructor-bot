@@ -4,9 +4,11 @@ const settingsRepository = require('../repositories/settings-repository')
 
 async function buildStartMessageMarkup() {
     const inlineKeys = await inlineKeyboardRepository.getInlineKeys(global.botId)
+    const inlineUrlKeys = await inlineKeyboardRepository.getInlineUrlKeys()
     const interviews = await interviewRepository.getInterviews(global.botId)
     const networkingEnabled = await settingsRepository.getNetworkingStatus()
     const messageText = await settingsRepository.getStartMessage()
+
     let keys = []
 
     inlineKeys.forEach(key => {
@@ -26,6 +28,13 @@ async function buildStartMessageMarkup() {
                 id: interview.id,
                 type: 'interview'
             })
+        }])
+    })
+
+    inlineUrlKeys.forEach(urlKey => {
+        keys.push([{
+            text: urlKey.caption,
+            url: urlKey.url
         }])
     })
 

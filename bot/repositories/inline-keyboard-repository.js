@@ -16,6 +16,20 @@ async function getInlineKeys(botId) {
     }
 }
 
+async function getInlineUrlKeys() {
+    try {
+        let inlineKeysResponse = await axios.get(`${config.botConstructorApiUrl}/inline-url-keys?botId=${global.botId}`)
+
+        if (inlineKeysResponse.data) {
+            return inlineKeysResponse.data
+        } else {
+            return []
+        }
+    } catch (error) {
+        throw error
+    }
+}
+
 
 
 async function getInlineKeyAnswerText(id, callback) {
@@ -27,3 +41,4 @@ async function getInlineKeyAnswerText(id, callback) {
 
 module.exports.getInlineKeys = getInlineKeys
 module.exports.getInlineKeyAnswerText = getInlineKeyAnswerText
+module.exports.getInlineUrlKeys = getInlineUrlKeys
