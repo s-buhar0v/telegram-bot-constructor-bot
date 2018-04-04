@@ -12,6 +12,16 @@ async function getNetworkingStatus() {
     }
 }
 
+async function getCongnitiveServicesStatus() {
+    try {
+        let response = await axios.get(`${config.botConstructorApiUrl}/bot-cognitive?id=${global.botId}`)
+
+        return response.data
+    } catch (error) {
+        return false
+    }
+}
+
 async function getStartMessage() {
     try {
         let response = await axios.get(`${config.botConstructorApiUrl}/get-start-message?id=${global.botId}`)
@@ -24,3 +34,4 @@ async function getStartMessage() {
 
 module.exports.getNetworkingStatus = getNetworkingStatus
 module.exports.getStartMessage = getStartMessage
+module.exports.getCongnitiveServicesStatus = getCongnitiveServicesStatus

@@ -2,15 +2,16 @@ const textMessageAnswerRepository = require('../repositories/text-message-answer
 const inlineKeyboardRepository = require('../repositories/inline-keyboard-repository')
 const interviewRepository = require('../repositories/interview-repository')
 const userRepository = require('../repositories/users-repository')
-const congnitiveService = require('../services/congnitive-service')
-const messageService = require('../services/message-service')
-const textConstants = require('../resources/text-constants')
-const config = require('../../config')
-const UserRepository = require('../repositories/users-repository')
 const settingsRepository = require('../repositories/settings-repository')
 
 const startMessageController = require('./start-message-controller')
 const networkingController = require('./networking-controller')
+const congnitiveController = require('./cognitive-controller')
+
+const messageService = require('../services/message-service')
+
+const config = require('../../config')
+const textConstants = require('../resources/text-constants')
 
 async function handleStart(bot) {
     bot.onText(/\/start/, async (message) => {
@@ -25,21 +26,20 @@ function handleTextMessage(bot) {
                 textMessageAnswerRepository.getTextMessageAnswer(
                     message.text,
                     global.botId,
-                    textMessageAnswer => {
+                    async (textMessageAnswer) => {
                         if (textMessageAnswer) {
                             bot.sendMessage(message.chat.id, textMessageAnswer, {
                                 parse_mode: "HTML"
                             })
                         } else {
-                            bot.sendMessage(message.chat.id, textConstants.notFoundMessage)
-                            congnitiveService.findTextMessageAnswer(message.text, (cognitiveTextMessageAnswer) => {
-                                if (cognitiveTextMessageAnswer) {
-                                    bot.sendPhoto(message.chat.id, cognitiveTextMessageAnswer.imageUrl, {
-                                        caption: `${cognitiveTextMessageAnswer.answerText}`,
-                                        parse_mode: "HTML"
-                                    })
-                                }
-                            })
+                            const congnitiveServicesEnabled = await settingsRepository.getCongnitiveServicesStatus()
+
+                            if (congnitiveServicesEnabled) {
+                                bot.sendMessage(message.chat.id, textConstants.cognitiveNotFoundMessage)
+                                await congnitiveController.handleMessage(message.chat.id, message.text, bot)
+                            } else {
+                                bot.sendMessage(message.chat.id, textConstants.notFoundMessage)
+                            }
                         }
                     })
             } else {
@@ -63,7 +63,7 @@ function handleCallbackQuery(bot) {
         switch (type) {
             case 'inline': {
                 let answerText = await inlineKeyboardRepository.getInlineKeyAnswerText(parsedCallbackData.id)
-                
+
                 bot.editMessageText(answerText, options).then(() => {
                     setMessageWithReturnButton(bot, options)
                 })
@@ -111,7 +111,7 @@ function handleCallbackQuery(bot) {
                 break
             }
             case 'networking': {
-                let user = await UserRepository.getUser(callbackData.message.chat.id)
+                let user = await userRepository.getUser(callbackData.message.chat.id)
                 let userNetworking = JSON.parse(user.networking)
                 if (Object.keys(userNetworking).length === 0) {
                     networkingController.startDialog(callbackData.message.chat.id, bot)
