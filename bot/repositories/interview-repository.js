@@ -49,7 +49,7 @@ async function addInterviewAnswer(interviewId, userId, answerIndex, botId, callb
         form.append('answer', `${interviewResponse.data.answers[answerIndex]}`)
         form.append('botId', `${botId}`)
 
-        await axios.post(`${config.botConstructorApiUrl}/add-interview-answer`, form, {
+        await axios.post(`${config.botConstructorApiUrl}/interview-answers/add`, form, {
             headers: form.getHeaders()
         })
 

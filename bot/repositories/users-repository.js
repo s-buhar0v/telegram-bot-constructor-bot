@@ -4,7 +4,7 @@ const config = require('../../config')
 
 async function addUser(user, botId) {
     try {
-        let userResponse = await axios.get(`${config.botConstructorApiUrl}/user?telegramId=${user.telegramId}&botId=${botId}`)
+        let userResponse = await axios.get(`${config.botConstructorApiUrl}/users/user?telegramId=${user.telegramId}&botId=${botId}`)
 
         if (!userResponse.data) {
             let form = new FormData()
@@ -15,7 +15,7 @@ async function addUser(user, botId) {
             form.append('lastName', `${user.lastName}`)
             form.append('userName', `${user.userName}`)
 
-            await axios.post(`${config.botConstructorApiUrl}/add-user`, form, {
+            await axios.post(`${config.botConstructorApiUrl}/users/add`, form, {
                 headers: form.getHeaders()
             })
 
@@ -33,7 +33,7 @@ async function setNetworking(telegramId, botId, networking) {
         form.append('botId', botId)
         form.append('networking', networking)
 
-        let resposne = await axios.post(`${config.botConstructorApiUrl}/set-networking`, form, {
+        let resposne = await axios.post(`${config.botConstructorApiUrl}/users/networking/set`, form, {
             headers: form.getHeaders()
         })
 
@@ -45,7 +45,7 @@ async function setNetworking(telegramId, botId, networking) {
 
 async function getUser(telegramId) {
     try {
-        let response = await axios.get(`${config.botConstructorApiUrl}/user?telegramId=${telegramId}&botId=${global.botId}`)
+        let response = await axios.get(`${config.botConstructorApiUrl}/users/user?telegramId=${telegramId}&botId=${global.botId}`)
         return response.data
     } catch (error) {
         throw error

@@ -19,7 +19,7 @@ async function removeEvent(id) {
 
         form.append('id', id)
 
-        let response = await axios.post(`${config.botConstructorApiUrl}/remove-event`, form, {
+        let response = await axios.post(`${config.botConstructorApiUrl}/events/remove`, form, {
             headers: form.getHeaders()
         })
 

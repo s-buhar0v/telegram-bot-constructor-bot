@@ -4,7 +4,7 @@ const config = require('../../config')
 
 async function getNetworkingStatus() {
     try {
-        let response = await axios.get(`${config.botConstructorApiUrl}/bot-networking?id=${global.botId}`)
+        let response = await axios.get(`${config.botConstructorApiUrl}/bots/networking?id=${global.botId}`)
 
         return response.data
     } catch (error) {
@@ -14,7 +14,7 @@ async function getNetworkingStatus() {
 
 async function getCongnitiveServicesStatus() {
     try {
-        let response = await axios.get(`${config.botConstructorApiUrl}/bot-cognitive?id=${global.botId}`)
+        let response = await axios.get(`${config.botConstructorApiUrl}/bots/cognitive?id=${global.botId}`)
 
         return response.data
     } catch (error) {
@@ -24,7 +24,7 @@ async function getCongnitiveServicesStatus() {
 
 async function getStartMessage() {
     try {
-        let response = await axios.get(`${config.botConstructorApiUrl}/get-start-message?id=${global.botId}`)
+        let response = await axios.get(`${config.botConstructorApiUrl}/bots/message/?id=${global.botId}`)
 
         return response.data ? response.data : "Hello"
     } catch (error) {
