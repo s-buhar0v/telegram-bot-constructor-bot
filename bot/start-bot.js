@@ -8,7 +8,7 @@ const botReceiver = require('./bot-receiver')
 let botAccessToken = process.env.BOT_ACCESS_TOKEN
 let bot = new TelegramBot(botAccessToken, { polling: true })
 
-axios.get(`${config.botConstructorApiUrl}/bot-by-token?token=${botAccessToken}`).then(response => {
+axios.get(`${config.botConstructorApiUrl}/bots/bot/by-token?token=${botAccessToken}`).then(response => {
     global.botId = response.data.id
 
     botReceiver.start(bot);

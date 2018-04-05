@@ -40,7 +40,7 @@ async function getInterviewAnswers(interviewId, botId, callback) {
 
 async function addInterviewAnswer(interviewId, userId, answerIndex, botId, callback) {
     try {
-        let interviewResponse = await axios.get(`${config.botConstructorApiUrl}/interview?id=${interviewId}`)
+        let interviewResponse = await axios.get(`${config.botConstructorApiUrl}/interviews/interview?id=${interviewId}`)
 
         let form = new FormData()
 
