@@ -1,6 +1,8 @@
 const NetworkingConstants = require('../resources/networking-constants')
 const UserRepository = require('../repositories/users-repository')
 const settingsRepositoty = require('../repositories/settings-repository')
+const fileDownloadService = require('../services/file-download-service')
+const azureBlobStoage = require('../repositories/azure-file-storage')
 
 let dialogs = {}
 
@@ -31,14 +33,20 @@ async function handleDialogMessage(message, bot) {
             case 0: {
                 let photo = null
                 if (message.photo) {
-                    photo = message.photo[0].file_id
+                    let link = await bot.getFileLink(message.photo[message.photo.length - 1].file_id)
+
+                    fileDownloadService.downloadImage(link, user.telegramId, () => {
+                        azureBlobStoage.savePhoto(user.telegramId, async (photoUrl) => {
+                            await UserRepository.setNetworking(
+                                message.chat.id,
+                                global.botId,
+                                JSON.stringify({ photoUrl: photoUrl, photoId: message.photo[message.photo.length - 1].file_id })
+                            )
+                        })
+                    })
                 }
 
-                await UserRepository.setNetworking(
-                    message.chat.id,
-                    global.botId,
-                    JSON.stringify({ photo: photo })
-                )
+
 
                 bot.sendMessage(message.chat.id, NetworkingConstants.INTERESTS_MESSAGE.text, {
                     parse_mode: "HTML"
@@ -91,8 +99,8 @@ async function handleDialogMessage(message, bot) {
                 ]
             }
 
-            if (userNetworking.photo) {
-                bot.sendPhoto(message.chat.id, userNetworking.photo, {
+            if (userNetworking.photoId) {
+                bot.sendPhoto(message.chat.id, userNetworking.photoId, {
                     caption: messageText,
                     reply_markup: reply_markup,
                     parse_mode: "HTML"
@@ -126,8 +134,8 @@ async function sendUser(index, increment, chatId, bot) {
             ]
         }
 
-        if (userNetworking.photo) {
-            bot.sendPhoto(chatId, userNetworking.photo,
+        if (userNetworking.photoId) {
+            bot.sendPhoto(chatId, userNetworking.photoId,
                 {
                     reply_markup: reply_markup,
                     caption: messageText,
