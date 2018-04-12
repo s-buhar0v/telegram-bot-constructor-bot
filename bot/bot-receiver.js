@@ -11,13 +11,17 @@ async function start(bot) {
         events.forEach(event => {
             eventsRepository.removeEvent(event.id);
             users.forEach(user => {
-                bot.sendMessage(user.telegramId, event.text);
+                bot.sendMessage(user.telegramId, event.text, {
+                    parse_mode: "Markdown"
+                });
             });
         });
 
         userEvents.forEach(event => {
             eventsRepository.removeUserEvent(event.id)
-            bot.sendMessage(event.userTelegramId, event.text);
+            bot.sendMessage(event.userTelegramId, event.text, {
+                parse_mode: "Markdown"
+            });
         })
     });
 }
