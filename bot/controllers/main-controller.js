@@ -29,7 +29,7 @@ function handleTextMessage(bot) {
                     async (textMessageAnswer) => {
                         if (textMessageAnswer) {
                             bot.sendMessage(message.chat.id, textMessageAnswer, {
-                                parse_mode: "HTML"
+                                parse_mode: "Markdown"
                             })
                         } else {
                             const congnitiveServicesEnabled = await settingsRepository.getCongnitiveServicesStatus()
@@ -57,7 +57,7 @@ function handleCallbackQuery(bot) {
         let options = {
             chat_id: callbackData.message.chat.id,
             message_id: callbackData.message.message_id,
-            parse_mode: "HTML"
+            parse_mode: "Markdown"
         }
 
         switch (type) {
