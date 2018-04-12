@@ -17,9 +17,9 @@ async function handleStartMessage(message, bot) {
 
     bot.sendMessage(
         message.chat.id, startMessage.text, {
+            parse_mode: "Markdown",
             reply_markup: {
                 inline_keyboard: startMessage.keys,
-                parse_mode: "Markdown"
             }
         })
 }
@@ -29,9 +29,9 @@ async function sendStartMessage(chatId, bot) {
 
     bot.sendMessage(
         chatId, startMessage.text, {
+            parse_mode: "Markdown",
             reply_markup: {
                 inline_keyboard: startMessage.keys,
-                parse_mode: "Markdown"
             }
         })
 }
