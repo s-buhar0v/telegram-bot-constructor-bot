@@ -13,6 +13,16 @@ async function getEvents() {
     }
 }
 
+async function getUserEvents() {
+    try {
+        let response = await axios.get(`${config.botConstructorApiUrl}/user-events?botId=${global.botId}`)
+
+        return response.data
+    } catch (error) {
+        throw error
+    }
+}
+
 async function removeEvent(id) {
     try {
         let form = new FormData()
@@ -29,7 +39,25 @@ async function removeEvent(id) {
     }
 }
 
+async function removeUserEvent(id) {
+    try {
+        let form = new FormData()
+
+        form.append('id', id)
+
+        let response = await axios.post(`${config.botConstructorApiUrl}/user-events/remove`, form, {
+            headers: form.getHeaders()
+        })
+
+        return response.data
+    } catch (error) {
+        throw error
+    }
+}
+
 module.exports = {
     getEvents,
-    removeEvent
+    removeEvent,
+    removeUserEvent,
+    getUserEvents
 }

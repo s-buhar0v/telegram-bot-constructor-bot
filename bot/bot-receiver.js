@@ -5,6 +5,7 @@ const userRepositorty = require("./repositories/users-repository");
 async function start(bot) {
     schedule.scheduleJob("*/1 * * * *", async () => {
         const events = await eventsRepository.getEvents();
+        const userEvents = await eventsRepository.getUserEvents();
         const users = await userRepositorty.getUsers();
 
         events.forEach(event => {
@@ -13,6 +14,11 @@ async function start(bot) {
                 bot.sendMessage(user.telegramId, event.text);
             });
         });
+
+        userEvents.forEach(event => {
+            eventsRepository.removeUserEvent(event.id)
+            bot.sendMessage(event.userTelegramId, event.text);
+        })
     });
 }
 
